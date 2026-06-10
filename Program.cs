@@ -62,7 +62,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var frontendPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "frontend");
+var frontendPath = Path.Combine(Directory.GetCurrentDirectory(), "frontend");
 app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(frontendPath) });
 app.UseStaticFiles(new StaticFileOptions { FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(frontendPath) });
 
