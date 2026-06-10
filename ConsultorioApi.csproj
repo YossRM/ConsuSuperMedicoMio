@@ -13,8 +13,4 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="frontend\**\*" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" />
-  </ItemGroup>
-
 </Project>
