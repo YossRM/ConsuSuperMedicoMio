@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultorio Medico</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Consultorio Medico</div>
+        <div class="nav-links">
+            <a href="#" class="nav-link active" data-seccion="pacientes">Pacientes</a>
+            <a href="#" class="nav-link" data-seccion="citas">Citas</a>
+        </div>
+        <div class="nav-user">
+            <span id="usuario-nombre"></span>
+            <button class="btn btn-secondary btn-sm" onclick="logout()">Cerrar Sesion</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Seccion Pacientes -->
+        <section id="seccion-pacientes" class="seccion activa">
+            <div class="seccion-header">
+                <h2>Gestion de Pacientes</h2>
+                <button class="btn btn-primary" onclick="Pacientes.abrirFormulario()">+ Nuevo Paciente</button>
+            </div>
+
+            <div class="barra-busqueda">
+                <input type="text" id="busqueda-pacientes" placeholder="Buscar por nombre, apellido o correo..." oninput="Pacientes.buscar(this.value)">
+            </div>
+
+            <div id="tabla-pacientes-container">
+                <table class="tabla" id="tabla-pacientes">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Edad</th>
+                            <th>Telefono</th>
+                            <th>Correo</th>
+                            <th>Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="paginacion" id="paginacion-pacientes"></div>
+        </section>
+
+        <!-- Seccion Citas -->
+        <section id="seccion-citas" class="seccion">
+            <div class="seccion-header">
+                <h2>Gestion de Citas</h2>
+                <button class="btn btn-primary" onclick="Citas.abrirFormulario()">+ Nueva Cita</button>
+            </div>
+
+            <div class="filtros">
+                <input type="text" id="busqueda-citas" placeholder="Buscar por paciente..." oninput="Citas.buscar(this.value)">
+                <select id="filtro-estado" onchange="Citas.filtrarEstado(this.value)">
+                    <option value="">Todos los estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Confirmada">Confirmada</option>
+                    <option value="Completada">Completada</option>
+                    <option value="Cancelada">Cancelada</option>
+                </select>
+            </div>
+
+            <div id="tabla-citas-container">
+                <table class="tabla" id="tabla-citas">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="paginacion" id="paginacion-citas"></div>
+        </section>
+    </main>
+
+    <!-- Modal Paciente -->
+    <div class="modal" id="modal-paciente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-paciente-titulo">Nuevo Paciente</h3>
+                <button class="modal-close" onclick="Pacientes.cerrarFormulario()">&times;</button>
+            </div>
+            <form id="form-paciente" onsubmit="Pacientes.guardar(event)">
+                <input type="hidden" id="paciente-id">
+                <div class="form-group">
+                    <label for="paciente-nombre">Nombre *</label>
+                    <input type="text" id="paciente-nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="paciente-apellido">Apellido *</label>
+                    <input type="text" id="paciente-apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="paciente-edad">Edad *</label>
+                    <input type="number" id="paciente-edad" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="paciente-telefono">Telefono *</label>
+                    <input type="text" id="paciente-telefono" required>
+                </div>
+                <div class="form-group">
+                    <label for="paciente-correo">Correo *</label>
+                    <input type="email" id="paciente-correo" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="Pacientes.cerrarFormulario()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Cita -->
+    <div class="modal" id="modal-cita">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-cita-titulo">Nueva Cita</h3>
+                <button class="modal-close" onclick="Citas.cerrarFormulario()">&times;</button>
+            </div>
+            <form id="form-cita" onsubmit="Citas.guardar(event)">
+                <input type="hidden" id="cita-id">
+                <div class="form-group">
+                    <label for="cita-paciente">Paciente *</label>
+                    <select id="cita-paciente" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="cita-fecha">Fecha *</label>
+                    <input type="date" id="cita-fecha" required>
+                </div>
+                <div class="form-group">
+                    <label for="cita-hora">Hora *</label>
+                    <input type="time" id="cita-hora" required>
+                </div>
+                <div class="form-group">
+                    <label for="cita-motivo">Motivo *</label>
+                    <textarea id="cita-motivo" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cita-estado">Estado</label>
+                    <select id="cita-estado">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="Citas.cerrarFormulario()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificacion -->
+    <div class="notificacion" id="notificacion">
+        <span id="notificacion-mensaje"></span>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/pacientes.js"></script>
+    <script src="js/citas.js"></script>
+    <script>
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("nombre");
+            window.location.href = "/login.html";
+        }
+
+        // Verificar sesion
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login.html";
+        }
+
+        const nombre = localStorage.getItem("nombre");
+        if (nombre) {
+            document.getElementById("usuario-nombre").textContent = nombre;
+        }
+
+        document.querySelectorAll(".nav-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+                document.querySelectorAll(".seccion").forEach(s => s.classList.remove("activa"));
+                this.classList.add("active");
+                document.getElementById("seccion-" + this.dataset.seccion).classList.add("activa");
+            });
+        });
+
+        Pacientes.cargar();
+    </script>
+</body>
+</html>

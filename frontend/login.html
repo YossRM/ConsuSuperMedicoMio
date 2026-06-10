@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion - Consultorio Medico</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Consultorio Medico</h2>
+            <p class="login-subtitle" id="login-subtitle">Inicia sesion para continuar</p>
+
+            <!-- Formulario Login -->
+            <form id="form-login" onsubmit="Auth.login(event)">
+                <div class="form-group">
+                    <label for="login-correo">Correo</label>
+                    <input type="email" id="login-correo" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-contrasena">Contrasena</label>
+                    <input type="password" id="login-contrasena" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Iniciar Sesion</button>
+            </form>
+
+            <!-- Formulario Registro -->
+            <form id="form-registro" style="display:none;" onsubmit="Auth.registro(event)">
+                <div class="form-group">
+                    <label for="registro-nombre">Nombre</label>
+                    <input type="text" id="registro-nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="registro-correo">Correo</label>
+                    <input type="email" id="registro-correo" required>
+                </div>
+                <div class="form-group">
+                    <label for="registro-contrasena">Contrasena</label>
+                    <input type="password" id="registro-contrasena" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+            </form>
+
+            <p class="login-toggle">
+                <span id="toggle-text">No tienes cuenta?</span>
+                <a href="#" id="toggle-link" onclick="Auth.toggleForm()">Registrate</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="notificacion" id="notificacion">
+        <span id="notificacion-mensaje"></span>
+    </div>
+
+    <script>
+        const Auth = {
+            esLogin: true,
+
+            toggleForm() {
+                this.esLogin = !this.esLogin;
+                document.getElementById("form-login").style.display = this.esLogin ? "block" : "none";
+                document.getElementById("form-registro").style.display = this.esLogin ? "none" : "block";
+                document.getElementById("login-subtitle").textContent = this.esLogin
+                    ? "Inicia sesion para continuar"
+                    : "Crea una cuenta nueva";
+                document.getElementById("toggle-text").textContent = this.esLogin
+                    ? "No tienes cuenta?"
+                    : "Ya tienes cuenta?";
+                document.getElementById("toggle-link").textContent = this.esLogin
+                    ? "Registrate"
+                    : "Inicia sesion";
+            },
+
+            async login(e) {
+                e.preventDefault();
+                const data = {
+                    correo: document.getElementById("login-correo").value.trim(),
+                    contrasena: document.getElementById("login-contrasena").value
+                };
+
+                try {
+                    const res = await fetch("/auth/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await res.json();
+
+                    if (!res.ok) {
+                        Notificacion.mostrar(result.error, "error");
+                        return;
+                    }
+
+                    localStorage.setItem("token", result.token);
+                    localStorage.setItem("nombre", result.nombre);
+                    window.location.href = "/";
+                } catch (error) {
+                    Notificacion.mostrar("Error al iniciar sesion", "error");
+                }
+            },
+
+            async registro(e) {
+                e.preventDefault();
+                const data = {
+                    nombre: document.getElementById("registro-nombre").value.trim(),
+                    correo: document.getElementById("registro-correo").value.trim(),
+                    contrasena: document.getElementById("registro-contrasena").value
+                };
+
+                try {
+                    const res = await fetch("/auth/registro", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await res.json();
+
+                    if (!res.ok) {
+                        Notificacion.mostrar(result.error, "error");
+                        return;
+                    }
+
+                    localStorage.setItem("token", result.token);
+                    localStorage.setItem("nombre", result.nombre);
+                    window.location.href = "/";
+                } catch (error) {
+                    Notificacion.mostrar("Error al crear cuenta", "error");
+                }
+            }
+        };
+
+        const Notificacion = {
+            mostrar(mensaje, tipo) {
+                const div = document.getElementById("notificacion");
+                const span = document.getElementById("notificacion-mensaje");
+                span.textContent = mensaje;
+                div.className = `notificacion ${tipo} visible`;
+                setTimeout(() => { div.className = "notificacion"; }, 3000);
+            }
+        };
+
+        // Si ya tiene token, redirigir
+        if (localStorage.getItem("token")) {
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>
